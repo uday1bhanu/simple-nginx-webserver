@@ -1,24 +1,24 @@
 pipeline {
     agent {
-        kubernetes {
+    kubernetes {
         yaml """
-    apiVersion: v1
-    kind: Pod
-    metadata:
-    labels:
-        run: docker
-    spec:
-    containers:
-    - name: docker
-        image: docker:18.09.8-dind
-        command:
-        - dockerd-entrypoint.sh 
-        - --storage-driver=overlay2
-        tty: true
-        securityContext:
-        allowPrivilegeEscalation: true
-    """
-        }
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: docker
+spec:
+  containers:
+  - name: docker
+    image: docker:18.09.8-dind
+    command:
+    - dockerd-entrypoint.sh 
+    - --storage-driver=overlay2
+    tty: true
+    securityContext:
+      allowPrivilegeEscalation: true
+"""
+    }
     }
     options {
         disableConcurrentBuilds()
