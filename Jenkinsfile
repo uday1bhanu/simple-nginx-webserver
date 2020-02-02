@@ -1,29 +1,26 @@
-node {
-    def app
-
-    stage('Clone repository') {
-        /* repository cloned to our workspace */
-
-        checkout scm
+pipeline {
+  agent { label 'docker' }
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+  }
+  triggers {
+    cron('@daily')
+  }
+  stages {
+    stage('Build') {
+      steps {
+        sh "docker build -t uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER} ."
+      }
     }
-
-    stage('Build image') {
-        /* To builds the dockerimage */
-        app = docker.build("hub.docker.io/uday1bhanu")
-    }
-
-    stage('Test image') {
-        /* Try killing some white walkers for testing ;-) */
-
-        app.inside {
-            sh 'echo "Hurray !! Tests passed, Valar Morghulis "'
+    stage('Publish') {
+      when {
+        branch 'master'
+      }
+      steps {
+        withDockerRegistry([ credentialsId: "jenkins-docker", url: "hub.docker.com" ]) {
+          sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
         }
+      }
     }
-
-    stage('Push image') {
-        /* Finally, we'll push the image */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("latest")
-        }
-    }
+  }
 }
