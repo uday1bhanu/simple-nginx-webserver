@@ -16,7 +16,7 @@ spec:
     - --storage-driver=overlay2
     tty: true
     securityContext:
-    - privileged: true
+      allowPrivilegeEscalation: true
 """
     }
   }
