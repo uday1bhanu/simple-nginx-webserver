@@ -1,28 +1,25 @@
-def docker() {
-    return [
-        name: "docker",
-        image: "docker:18.09.8-dind",
-        securityContext: [
-            privileged: true
-        ],
-        resources: [
-            limits: [ memory: "1.5Gi" ],
-            requests: [ memory: "256Mi" ]
-        ],
-        command: ["dockerd-entrypoint.sh", "--storage-driver=overlay2"]
-    ]
-}
-
-def buildPod(){
-  return pod(docker())
-}
-
 pipeline {
     agent {
-        kubernetes {
-            yaml buildPod()
-        }
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: docker
+spec:
+  containers:
+  - name: docker
+    image: docker:18.09.8-dind
+    command:
+    - dockerd-entrypoint.sh 
+    - --storage-driver=overlay2
+    tty: true
+    securityContext:
+    - privileged: true
+"""
     }
+  }
     options {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(daysToKeepStr: '365'))
