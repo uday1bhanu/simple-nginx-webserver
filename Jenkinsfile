@@ -1,40 +1,41 @@
 pipeline {
-    agent {
+  agent {
     kubernetes {
-        yaml """
+      label 'simple-nginx-webserver'
+      defaultContainer 'jnlp'
+      yaml """
 apiVersion: v1
 kind: Pod
 metadata:
-  labels:
-    run: docker
+labels:
+  component: ci
 spec:
+  # Use service account that can deploy to all namespaces
   containers:
   - name: docker
-    image: docker:18.09.8-dind
+    image: docker:latest
     command:
-    - dockerd-entrypoint.sh 
-    - --storage-driver=overlay2
+    - cat
     tty: true
-    securityContext:
-      allowPrivilegeEscalation: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
 """
-    }
-    }
-    options {
-        disableConcurrentBuilds()
-        buildDiscarder(logRotator(daysToKeepStr: '365'))
-        timeout(time: 90, unit: 'MINUTES')
-    }
-    stages {
-        stage('Build') {
-            steps {
-                dir('.') {
-                    container('docker') {
-                        sh "docker build --no-cache --network host -t uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}"
-                        sh "docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}"
-                    }
-                }
-            }
+}
+   }
+  stages {
+    stage('Build') {
+      steps {
+        container('docker') {
+          sh """
+             docker build -t uday1bhanu/simple-nginx-webserver:$BUILD_NUMBER .
+          """
         }
+      }
     }
+  }
 }
