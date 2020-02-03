@@ -37,5 +37,15 @@ spec:
         }
       }
     }
+    stage('Publish') {
+      when {
+        branch 'master'
+      }
+      steps {
+        withDockerRegistry([ credentialsId: "jenkins-docker" ]) {
+          sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
+        }
+      }
+    }
   }
 }
