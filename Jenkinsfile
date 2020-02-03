@@ -1,4 +1,8 @@
 pipeline {
+  environment {
+    registry = "uday1bhanu/simple-nginx-webserver"
+    registryCredential = 'dockerhub'
+}
   agent {
     kubernetes {
       label 'simple-nginx-webserver'
@@ -42,7 +46,7 @@ spec:
         branch 'master'
       }
       steps {
-        withDockerRegistry([ credentialsId: 'jenkins-docker.docker.io', url: '' ]) {
+        withDockerRegistry([ credentialsId: 'dockerhub.docker.io', url: '' ]) {
           sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
         }
       }
