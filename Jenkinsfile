@@ -46,9 +46,9 @@ spec:
         branch 'master'
       }
       steps {
-        withDockerRegistry([ credentialsId: 'dockerhub', url: '' ]) {
-          container('docker') {
-            sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
+        container('docker') {
+            withDockerRegistry([ credentialsId: 'dockerhub', url: '' ]) {
+                sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
           }
         }
       }
