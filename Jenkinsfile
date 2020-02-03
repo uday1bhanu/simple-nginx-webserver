@@ -42,7 +42,7 @@ spec:
         branch 'master'
       }
       steps {
-        withDockerRegistry([ credentialsId: "jenkins-docker" ]) {
+        withDockerRegistry([ credentialsId: "jenkins-docker", url: '' ]) {
           sh 'docker push uday1bhanu/simple-nginx-webserver:${env.BUILD_NUMBER}'
         }
       }
